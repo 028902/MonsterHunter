@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.board.mapper.UserMapper">
+    <insert id="registration" parameterType="com.example.board.entity.User">
+        INSERT INTO USER (ID, NICKNAME, PASSWORD, EMAIL, WEAPON, REG_DATE)
+        VALUES (#{id}, #{nickname}, #{password}, #{email}, #{weapon}, #{reg_date})
+    </insert>
+
+    <select id="getPasswordById" parameterType="String" resultType="String">
+        SELECT PASSWORD FROM USER WHERE ID = #{id}
+    </select>
+</mapper>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.board.mapper.BoardMapper">
+    <!-- 자유게시판 리스트-->
+    <select id="getBoardList" resultType="com.example.board.entity.Board">
+        SELECT *
+        FROM BOARD
+    </select>
+
+    <!-- 자유게시판 게시글 등록 -->
+    <insert id="insertBoard" parameterType="com.example.board.entity.Board">
+        INSERT INTO BOARD (ID, TITLE, BODY, REG_DATE)
+        VALUES (#{id}, #{title}, #{body}, NOW())
+    </insert>
+
+    <!-- 자유게시판 게시글 수정-->
+    <update id="updateBoard" parameterType="com.example.board.entity.Board">
+        UPDATE BOARD
+        SET TITLE = #{title},
+            BODY = #{body}
+        WHERE SEQ = #{seq}
+    </update>
+
+    <!-- 자유게시판 게시글 삭제 -->
+    <delete id="deleteBoard" parameterType="int">
+        DELETE FROM BOARD
+        WHERE SEQ = #{seq}
+    </delete>
+</mapper>

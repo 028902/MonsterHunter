@@ -1,6 +1,7 @@
 package com.example.board.controller;
 
 import com.example.board.entity.Monster;
+import com.example.board.entity.MonsterList;
 import com.example.board.service.MonsterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,8 +24,14 @@ public class MonsterController {
 
     @GetMapping("/monster/list")
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    public List<Monster> monsterList(){
+    public List<MonsterList> monsterList(){
         return monsterService.getAllMonsters();
+    }
+
+    @GetMapping("/monster/detail")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    public Monster monsterDetail(@RequestParam("seq") int seq){
+        return monsterService.getMonster(seq);
     }
 
     @PostMapping("/admin/monster/insert")
@@ -37,8 +44,8 @@ public class MonsterController {
         if (monster.getImg() == null || monster.getImg().isEmpty()) {
             return ResponseEntity.badRequest().body("Image URL cannot be empty");
         }
-        if (monster.getBody() == null || monster.getBody().isEmpty()) {
-            return ResponseEntity.badRequest().body("Body cannot be empty");
+        if (monster.getDescription() == null || monster.getDescription().isEmpty()) {
+            return ResponseEntity.badRequest().body("Description cannot be empty");
         }
         try {
             monsterService.insertMonster(monster);

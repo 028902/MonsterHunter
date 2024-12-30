@@ -1,6 +1,7 @@
 package com.example.board.service;
 
 import com.example.board.entity.Monster;
+import com.example.board.entity.MonsterList;
 import com.example.board.mapper.MonsterMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,8 +13,11 @@ public class MonsterService {
     @Autowired
     MonsterMapper monsterMapper;
 
-    public List<Monster> getAllMonsters() {
+    public List<MonsterList> getAllMonsters() {
         return monsterMapper.getAllMonsters();
+    }
+    public Monster getMonster(int seq) {
+        return monsterMapper.getMonster(seq);
     }
     public void insertMonster(Monster monster) {
         monsterMapper.insertMonster(monster);

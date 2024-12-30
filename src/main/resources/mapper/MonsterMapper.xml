@@ -6,9 +6,15 @@
 <mapper namespace="com.example.board.mapper.MonsterMapper">
 
     <!-- 모든 Monster 조회 -->
-    <select id="getAllMonsters" resultType="com.example.board.entity.Monster">
+    <select id="getAllMonsters" resultType="com.example.board.entity.MonsterList">
+        SELECT SEQ, NAME, NICKNAME, TYPE, WEAK
+        FROM MONSTER
+    </select>
+
+    <select id="getMonster" resultType="com.example.board.entity.Monster">
         SELECT *
         FROM MONSTER
+        WHERE SEQ = #{seq}
     </select>
 
     <!-- 몬스터 등록 -->

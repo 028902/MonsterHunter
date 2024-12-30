@@ -15,15 +15,36 @@ public class Monster {
     @JsonProperty("name")
     private String name;
 
-    @JsonProperty("img")
-    private String img;
+    @JsonProperty("nickname")
+    private String nickname;
 
     @JsonProperty("icon")
     private String icon;
 
+    @JsonProperty("img")
+    private String img;
+
     @JsonProperty("type")
     private String type;
 
-    @JsonProperty("body")
-    private String body;
+    @JsonProperty("description")
+    private String description;
+
+    @JsonProperty("weak")
+    private String weak;
+
+    @JsonProperty("poi")
+    private String poi;
+
+    @JsonProperty("sle")
+    private String sle;
+
+    @JsonProperty("par")
+    private String par;
+
+    @JsonProperty("bla")
+    private String bla;
+
+    @JsonProperty("stu")
+    private String stu;
 }

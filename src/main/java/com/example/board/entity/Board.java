@@ -1,30 +1,43 @@
 package com.example.board.entity;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@Builder
+@Entity
+@Table(name = "BOARD")
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Board {
-    @JsonProperty("seq")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // PK, AI
     private int seq;
 
-    @JsonProperty("id")
-    private String id;
+    @Column
+    private String type;
 
-    @JsonProperty("title")
+    @Column(nullable = false)
+    private String nickname;
+
+    @Column(nullable = false)
     private String title;
 
-    @JsonProperty("body")
+    @Lob
+    @Column(nullable = false, columnDefinition = "MEDIUMTEXT")
     private String body;
 
-    @JsonProperty("reg_date")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
-    private OffsetDateTime reg_date;
+    @Column
+    private int count;
+
+    @Column(name = "reg_date", updatable = false)
+    private LocalDateTime regDate;
+
+    @PrePersist
+    protected void onCreate() {
+        this.regDate = LocalDateTime.now();
+        this.type = "B";
+        this.count = 0;
+    }
 }

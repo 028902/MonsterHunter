@@ -15,7 +15,6 @@ public class MonsterController {
     @Autowired
     private MonsterService monsterService;
 
-
     @GetMapping("/")
     @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<Void> index(){

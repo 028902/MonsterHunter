@@ -11,8 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 public class BoardController {
     @Autowired
@@ -47,7 +45,7 @@ public class BoardController {
             boardService.insertBoard(board);
             return ResponseEntity.ok("Insert board successfully");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Insert board failed");
+            return ResponseEntity.badRequest().body("Insert board failed" + e.getMessage());
         }
     }
 

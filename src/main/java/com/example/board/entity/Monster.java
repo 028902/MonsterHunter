@@ -1,50 +1,53 @@
 package com.example.board.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
 import lombok.*;
 
-@Getter
-@Setter
-@Builder
+@Entity
+@Table(name = "MONSTER")
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Monster {
-    @JsonProperty("seq")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // PK, AI
     private int seq;
 
-    @JsonProperty("name")
+    @Column(nullable = false)
     private String name;
 
-    @JsonProperty("nickname")
+    @Column(nullable = false)
     private String nickname;
 
-    @JsonProperty("icon")
+    @Column(nullable = false)
     private String icon;
 
-    @JsonProperty("img")
+    @Column(nullable = false)
     private String img;
 
-    @JsonProperty("type")
+    @Column(nullable = false)
     private String type;
 
-    @JsonProperty("description")
+    @Lob
+    @Column(nullable = false, columnDefinition = "MEDIUMTEXT")
     private String description;
 
-    @JsonProperty("weak")
+    @Column(nullable = false)
     private String weak;
 
-    @JsonProperty("poi")
-    private String poi;
+    @Column(nullable = false)
+    private int poi;
 
-    @JsonProperty("sle")
-    private String sle;
+    @Column(nullable = false)
+    private int sle;
 
-    @JsonProperty("par")
-    private String par;
+    @Column(nullable = false)
+    private int par;
 
-    @JsonProperty("bla")
-    private String bla;
+    @Column(nullable = false)
+    private int bla;
 
-    @JsonProperty("stu")
-    private String stu;
+    @Column(nullable = false)
+    private int stu;
 }

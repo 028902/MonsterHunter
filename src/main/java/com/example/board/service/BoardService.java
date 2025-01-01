@@ -31,8 +31,8 @@ public class BoardService {
 
     public Board updateBoard(int seq, Board updatedBoard) {
         Board board = boardRepository.findById(seq).orElseThrow(() -> new RuntimeException("Board " + seq + " not found"));
-        board.setTitle(updatedBoard.getTitle());
-        board.setBody(updatedBoard.getBody());
+        if (updatedBoard.getTitle() != null) board.setTitle(updatedBoard.getTitle());
+        if (updatedBoard.getBody() != null) board.setBody(updatedBoard.getBody());
         return boardRepository.save(board);
     }
 

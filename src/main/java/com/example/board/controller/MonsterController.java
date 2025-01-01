@@ -1,14 +1,15 @@
 package com.example.board.controller;
 
+import com.example.board.dto.MonsterListDto;
 import com.example.board.entity.Monster;
-import com.example.board.entity.MonsterList;
 import com.example.board.service.MonsterService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 public class MonsterController {
@@ -16,63 +17,66 @@ public class MonsterController {
     private MonsterService monsterService;
 
     @GetMapping("/")
-    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<Void> index(){
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/monster/list")
-    @CrossOrigin(origins = "*", allowedHeaders = "*")
-    public List<MonsterList> monsterList(){
-        return monsterService.getAllMonsters();
+    @CrossOrigin(origins = "http://localhost:3000")
+    public Page<MonsterListDto> monsterList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return monsterService.findMonsterList(
+                PageRequest.of(page, size, Sort.by("seq").descending())
+        );
     }
 
-    @GetMapping("/monster/detail")
-    @CrossOrigin(origins = "*", allowedHeaders = "*")
-    public Monster monsterDetail(@RequestParam("seq") int seq){
-        return monsterService.getMonster(seq);
+    @GetMapping("/monster/detail/{seq}")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public ResponseEntity<Monster> monsterDetail(@PathVariable int seq){
+        try{
+            Monster monster = monsterService.getMonsterDetail(seq);
+            return ResponseEntity.ok(monster);
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
     @PostMapping("/admin/monster/insert")
-    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<String> insertMonster(@RequestBody Monster monster) {
-        // 유효성 검사
-        if (monster.getName() == null || monster.getName().isEmpty()) {
-            return ResponseEntity.badRequest().body("Name cannot be empty");
-        }
-        if (monster.getImg() == null || monster.getImg().isEmpty()) {
-            return ResponseEntity.badRequest().body("Image URL cannot be empty");
-        }
-        if (monster.getDescription() == null || monster.getDescription().isEmpty()) {
-            return ResponseEntity.badRequest().body("Description cannot be empty");
-        }
         try {
             monsterService.insertMonster(monster);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Monster added successfully");
+            return ResponseEntity.ok("Monster added successfully");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to insert monster: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Insert Monster failed" + e.getMessage());
         }
     }
 
-    @PutMapping("/admin/monster/update")
-    @CrossOrigin(origins = "*", allowedHeaders = "*")
-    public ResponseEntity<?> updateMonster(@RequestBody Monster monster) {
+    @PutMapping("/admin/monster/update/{seq}")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public ResponseEntity<?> updateMonster(@PathVariable int seq, @RequestBody Monster monster) {
         try {
-            monsterService.updateMonster(monster);
+            monsterService.updateMonster(seq, monster);
             return ResponseEntity.ok("Monster updated successfully");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // 404 Not Found
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update monster: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Update Monster failed");
         }
     }
 
-    @DeleteMapping("/admin/monster/delete")
-    @CrossOrigin(origins = "*", allowedHeaders = "*")
-    public ResponseEntity<?> deleteMonster(@RequestParam int seq) {
+    @DeleteMapping("/admin/monster/delete/{seq}")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public ResponseEntity<?> deleteMonster(@PathVariable int seq) {
         try {
             monsterService.deleteMonster(seq);
             return ResponseEntity.ok("Monster deleted successfully");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // 404 Not Found
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete monster: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Delete Monster failed");
         }
     }
 }

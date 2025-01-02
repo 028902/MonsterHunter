@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,48 +29,28 @@ public class BoardController {
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/board/detail/{seq}")
     public ResponseEntity<Board> boardDetail(@PathVariable int seq) {
-        try {
-            Board board = boardService.getBoardDetail(seq);
-            return ResponseEntity.ok(board);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+        Board board = boardService.getBoardDetail(seq);
+        return ResponseEntity.ok(board);
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/board/insert")
     public ResponseEntity<String> insertParty(@RequestBody Board board) {
-        try {
-            boardService.insertBoard(board);
-            return ResponseEntity.ok("Insert board successfully");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Insert board failed" + e.getMessage());
-        }
+        boardService.insertBoard(board);
+        return ResponseEntity.ok("Insert board successfully");
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
     @PutMapping("/board/update/{seq}")
     public ResponseEntity<?> updateBoard(@PathVariable int seq, @RequestBody Board board) {
-        try{
-            boardService.updateBoard(seq, board);
-            return ResponseEntity.ok("Update board successfully");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // 404 Not Found
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Update board failed");
-        }
+        boardService.updateBoard(seq, board);
+        return ResponseEntity.ok("Update board successfully");
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
     @DeleteMapping("/board/delete/{seq}")
     public ResponseEntity<?> deleteBoard(@PathVariable int seq) {
-        try {
-            boardService.deleteBoard(seq);
-            return ResponseEntity.ok("Delete board successfully");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // 404 Not Found
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Delete board failed");
-        }
+        boardService.deleteBoard(seq);
+        return ResponseEntity.ok("Delete board successfully");
     }
 }

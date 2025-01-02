@@ -3,6 +3,7 @@ package com.example.board.service;
 import com.example.board.dto.MonsterListDto;
 import com.example.board.entity.Monster;
 import com.example.board.repository.MonsterRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,24 +12,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class MonsterService {
-    /*@Autowired
-    MonsterMapper monsterMapper;
-
-    public List<MonsterList> getAllMonsters() {
-        return monsterMapper.getAllMonsters();
-    }
-    public Monster getMonster(int seq) {
-        return monsterMapper.getMonster(seq);
-    }
-    public void insertMonster(Monster monster) {
-        monsterMapper.insertMonster(monster);
-    }
-    public void updateMonster(Monster monster) {
-        monsterMapper.updateMonster(monster);
-    }
-    public void deleteMonster(int seq) {
-        monsterMapper.deleteMonster(seq);
-    }*/
     private final MonsterRepository monsterRepository;
 
     public Page<MonsterListDto> findMonsterList(Pageable pageable) {
@@ -36,8 +19,8 @@ public class MonsterService {
     }
 
     public Monster getMonsterDetail(int seq) {
-        Monster monster = monsterRepository.findById(seq).orElseThrow(() -> new RuntimeException("Monster not found"));
-        return monsterRepository.save(monster);
+        return monsterRepository.findById(seq)
+                .orElseThrow(() -> new EntityNotFoundException("Monster with ID " + seq + " not found"));
     }
 
     public Monster insertMonster(Monster monster) {
@@ -45,7 +28,7 @@ public class MonsterService {
     }
 
     public Monster updateMonster(int seq, Monster updatedMonster) {
-        Monster monster = monsterRepository.findById(seq).orElseThrow(() -> new RuntimeException("Monster " + seq + "not found"));
+        Monster monster = monsterRepository.findById(seq).orElseThrow(() -> new EntityNotFoundException("Monster " + seq + "not found"));
         if (updatedMonster.getName() != null) monster.setName(updatedMonster.getName());
         if (updatedMonster.getNickname() != null) monster.setNickname(updatedMonster.getNickname());
         if (updatedMonster.getIcon() != null) monster.setIcon(updatedMonster.getIcon());
@@ -62,7 +45,7 @@ public class MonsterService {
     }
 
     public void deleteMonster(int seq) {
-        monsterRepository.findById(seq).orElseThrow(() -> new RuntimeException("Monster " + seq + "not found"));
+        monsterRepository.findById(seq).orElseThrow(() -> new EntityNotFoundException("Monster " + seq + "not found"));
         monsterRepository.deleteById(seq);
     }
 }

@@ -35,48 +35,28 @@ public class MonsterController {
     @GetMapping("/monster/detail/{seq}")
     @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<Monster> monsterDetail(@PathVariable int seq){
-        try{
-            Monster monster = monsterService.getMonsterDetail(seq);
-            return ResponseEntity.ok(monster);
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        Monster monster = monsterService.getMonsterDetail(seq);
+        return ResponseEntity.ok(monster);
     }
 
     @PostMapping("/admin/monster/insert")
     @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<String> insertMonster(@RequestBody Monster monster) {
-        try {
-            monsterService.insertMonster(monster);
-            return ResponseEntity.ok("Monster added successfully");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Insert Monster failed" + e.getMessage());
-        }
+        monsterService.insertMonster(monster);
+        return ResponseEntity.ok("Monster added successfully");
     }
 
     @PutMapping("/admin/monster/update/{seq}")
     @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<?> updateMonster(@PathVariable int seq, @RequestBody Monster monster) {
-        try {
-            monsterService.updateMonster(seq, monster);
-            return ResponseEntity.ok("Monster updated successfully");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // 404 Not Found
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Update Monster failed");
-        }
+        monsterService.updateMonster(seq, monster);
+        return ResponseEntity.ok("Monster updated successfully");
     }
 
     @DeleteMapping("/admin/monster/delete/{seq}")
     @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<?> deleteMonster(@PathVariable int seq) {
-        try {
-            monsterService.deleteMonster(seq);
-            return ResponseEntity.ok("Monster deleted successfully");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // 404 Not Found
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Delete Monster failed");
-        }
+        monsterService.deleteMonster(seq);
+        return ResponseEntity.ok("Monster deleted successfully");
     }
 }

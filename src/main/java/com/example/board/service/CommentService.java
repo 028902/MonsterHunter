@@ -1,27 +1,32 @@
 package com.example.board.service;
 
 import com.example.board.entity.Comment;
-import com.example.board.mapper.CommentMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.board.repository.CommentRepository;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class CommentService {
-    @Autowired
-    CommentMapper commentMapper;
+    private final CommentRepository commentRepository;
 
-    public List<Comment> getCommentList(String type){
-        return commentMapper.getCommentList(type);
+    public List<Comment> getCommentList(String type, int fseq){
+        return commentRepository.findAllByTypeAndFseq(type, fseq);
     }
-    public void insertComment(Comment comment){
-        commentMapper.insertComment(comment);
+    public Comment insertComment(Comment comment){
+        return commentRepository.save(comment);
     }
-    public void updateComment(Comment comment){
-        commentMapper.updateComment(comment);
+    public Comment updateComment(int seq, Comment updatedComment){
+        Comment comment = commentRepository.findById(seq).orElseThrow(() -> new EntityNotFoundException("Comment" + seq + " not found"));
+        if(updatedComment.getId() != null) comment.setId(updatedComment.getId());
+        if(updatedComment.getBody() != null) comment.setBody(updatedComment.getBody());
+        return commentRepository.save(comment);
     }
-    public void deleteComment(String type, int seq){
-        commentMapper.deleteComment(type, seq);
+    public void deleteComment(int seq){
+        commentRepository.findById(seq).orElseThrow(() -> new EntityNotFoundException("Comment" + seq + " not found"));
+        commentRepository.deleteById(seq);
     }
 }

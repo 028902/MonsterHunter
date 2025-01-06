@@ -14,37 +14,25 @@ public class CommentController {
     private CommentService commentService;
 
     @GetMapping("/comment/list")
-    public List<Comment> commentList(String type){
-        return commentService.getCommentList(type);
+    public List<Comment> commentList(String type, int fseq){
+        return commentService.getCommentList(type, fseq);
     }
 
     @PostMapping("/comment/insert")
     public ResponseEntity<?> insertComment(@RequestBody Comment comment){
-        try{
-            commentService.insertComment(comment);
-            return ResponseEntity.ok("Insert Comment successfully");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Insert Comment failed");
-        }
+        commentService.insertComment(comment);
+        return ResponseEntity.ok("Insert Comment successfully");
     }
 
-    @PutMapping("/comment/update")
-    public ResponseEntity<?> updateComment(@RequestBody Comment comment){
-        try{
-            commentService.updateComment(comment);
-            return ResponseEntity.ok("Update Comment successfully");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Update Comment failed");
-        }
+    @PutMapping("/comment/update/{seq}")
+    public ResponseEntity<?> updateComment(@PathVariable int seq, @RequestBody Comment comment){
+        commentService.updateComment(seq, comment);
+        return ResponseEntity.ok("Update Comment successfully");
     }
 
-    @DeleteMapping("/comment/delete")
-    public ResponseEntity<?> deleteComment(@RequestParam String type, @RequestParam int seq){
-        try{
-            commentService.deleteComment(type, seq);
-            return ResponseEntity.ok("Delete Comment successfully");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Delete Comment failed");
-        }
+    @DeleteMapping("/comment/delete/{seq}")
+    public ResponseEntity<?> deleteComment(@PathVariable int seq){
+        commentService.deleteComment(seq);
+        return ResponseEntity.ok("Delete Comment successfully");
     }
 }

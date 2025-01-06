@@ -1,36 +1,36 @@
 package com.example.board.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@Builder
+@Entity
+@Table(name = "USER")
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class User {
-    @JsonProperty("seq")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // PK, AI
     private int seq;
 
-    @JsonProperty("id")
+    @Column(nullable = false)
     private String id;
 
-    @JsonProperty("nickname")
+    @Column(nullable = false)
     private String nickname;
 
-    @JsonProperty("password")
+    @Column(nullable = false)
     private String password;
 
-    @JsonProperty("email")
+    @Column(nullable = false)
     private String email;
 
-    @JsonProperty("weapon")
+    @Column(nullable = false)
     private String weapon;
 
-    @JsonProperty("reg_date")
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate reg_date;
+    @Column(name = "reg_date", updatable = false)
+    private LocalDateTime regDate;
 }

@@ -23,33 +23,21 @@ public class UserController {
     /*회원가입*/
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody User user) {
-        try {
-            userService.register(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Registration Success");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Registration failed: " + e.getMessage());
-        }
+        userService.register(user);
+        return ResponseEntity.ok("Registration Success");
     }
 
     @PostMapping("/loginRequest")
     public ResponseEntity<?> loginRequest(@RequestBody LoginRequest loginRequest) {
-        try {
-            // 로그인 요청을 서비스에 전달하고, 성공하면 액세스 토큰과 리프레시 토큰 반환
-            Map<String, String> tokens = userService.loginRequest(loginRequest); // 액세스 토큰과 리프레시 토큰을 반환
+        // 로그인 요청을 서비스에 전달하고, 성공하면 액세스 토큰과 리프레시 토큰 반환
+        Map<String, String> tokens = userService.loginRequest(loginRequest); // 액세스 토큰과 리프레시 토큰을 반환
 
-            // JWT 토큰을 클라이언트에 반환
-            return ResponseEntity.ok().body(Map.of(
-                    "message", "Login successful",
-                    "accessToken", tokens.get("accessToken"),
-                    "refreshToken", tokens.get("refreshToken")
-            ));
-        } catch (IllegalArgumentException e) {
-            // 로그인 실패 시 에러 응답
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
-                    "message", "Invalid credentials"
-            ));
-        }
+        // JWT 토큰을 클라이언트에 반환
+        return ResponseEntity.ok().body(Map.of(
+                "message", "Login successful",
+                "accessToken", tokens.get("accessToken"),
+                "refreshToken", tokens.get("refreshToken")
+        ));
     }
 
     @PostMapping("/refresh-token")

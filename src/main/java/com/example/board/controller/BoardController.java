@@ -25,6 +25,18 @@ public class BoardController {
                 PageRequest.of(page, size, Sort.by("seq").descending())
         );
     }
+    @CrossOrigin(origins = "http://localhost:3000")
+    @GetMapping("/board/list/search")
+    public Page<BoardListDto> searchBoardList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String nickname,
+            @RequestParam(required = false) String title
+    ){
+        return boardService.searchBoardList(
+                nickname, title, PageRequest.of(page, size, Sort.by("seq").descending())
+        );
+    }
 
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/board/detail/{seq}")

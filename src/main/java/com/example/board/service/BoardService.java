@@ -17,6 +17,9 @@ public class BoardService {
     public Page<BoardListDto> findBoardList(Pageable pageable) {
         return boardRepository.findBoardList(pageable);
     }
+    public Page<BoardListDto> searchBoardList(String nickname, String title, Pageable pageable) {
+        return boardRepository.searchBoardList(nickname, title, pageable);
+    }
 
     public Board getBoardDetail(int seq){
         Board board = boardRepository.findById(seq).orElseThrow(() -> new EntityNotFoundException("Board not found"));

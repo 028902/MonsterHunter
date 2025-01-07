@@ -18,6 +18,10 @@ public class MonsterService {
         return monsterRepository.findMonsterList(pageable);
     }
 
+    public Page<MonsterListDto> searchMonsterList(String name, String nickname, String type, Pageable pageable) {
+        return monsterRepository.searchMonsterList(name, nickname, type, pageable);
+    }
+
     public Monster getMonsterDetail(int seq) {
         return monsterRepository.findById(seq)
                 .orElseThrow(() -> new EntityNotFoundException("Monster with ID " + seq + " not found"));

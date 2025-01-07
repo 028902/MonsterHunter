@@ -32,6 +32,20 @@ public class MonsterController {
         );
     }
 
+    @GetMapping("/monster/list/search")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public Page<MonsterListDto> monsterListSearch(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String nickname,
+            @RequestParam(required = false) String type
+    ){
+        return monsterService.searchMonsterList(
+               name, nickname, type, PageRequest.of(page, size, Sort.by("seq").descending())
+        );
+    }
+
     @GetMapping("/monster/detail/{seq}")
     @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<Monster> monsterDetail(@PathVariable int seq){

@@ -31,6 +31,15 @@ public class User {
     @Column(nullable = false)
     private String weapon;
 
+    @Column(nullable = false)
+    private String status;
+
     @Column(name = "reg_date", updatable = false)
     private LocalDateTime regDate;
+
+    @PrePersist
+    protected void onCreate() {
+        this.regDate = LocalDateTime.now();
+        this.status = "A";  //active 회원(기본값)
+    }
 }

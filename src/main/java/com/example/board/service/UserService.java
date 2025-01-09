@@ -4,6 +4,7 @@ import com.example.board.JwtTokenProvider;
 import com.example.board.entity.LoginRequest;
 import com.example.board.entity.User;
 import com.example.board.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +24,8 @@ public class UserService {
     private BCryptPasswordEncoder passwordEncoder;
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
+    @Autowired
+    private EmailService emailService;
 
     public void register(User user) {
         String hashPassword = passwordEncoder.encode(user.getPassword());
@@ -30,7 +34,7 @@ public class UserService {
     }
 
     public Map<String, String> loginRequest(LoginRequest loginRequest) {
-        Optional<User> optionalUser = userRepository.findById(loginRequest.getId());
+        Optional<User> optionalUser = userRepository.findByIdAndStatus(loginRequest.getId(), "A");
         User user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("User not found"));
         if(passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             String accessToken = jwtTokenProvider.generateAccessToken(user.getId());
@@ -42,5 +46,34 @@ public class UserService {
             return tokens;
         }
         throw new IllegalArgumentException("Invalid username or password");
+    }
+
+    public void deleteUser(User deleteUser) {
+        Optional<User> optionalUser = userRepository.findByIdAndStatus(deleteUser.getId(), "A");
+        User user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        user.setStatus("D");
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void updatePassword(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        String temporaryPassword = generateTemporaryPassword();
+        // 비밀번호 암호화
+        String encodedPassword = passwordEncoder.encode(temporaryPassword);
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
+        emailService.sendEmail(user.getEmail(), temporaryPassword);
+    }
+
+    private String generateTemporaryPassword() {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder sb = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < 10; i++) {
+            sb.append(chars.charAt(random.nextInt(chars.length())));
+        }
+        return sb.toString();
     }
 }

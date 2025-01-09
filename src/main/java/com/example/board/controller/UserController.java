@@ -4,16 +4,17 @@ import com.example.board.JwtTokenProvider;
 import com.example.board.dto.ResponseDto;
 import com.example.board.entity.LoginRequest;
 import com.example.board.entity.User;
+import com.example.board.service.EmailService;
 import com.example.board.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Random;
 
 @RestController
 public class UserController {
@@ -47,6 +48,22 @@ public class UserController {
         ));
     }
 
+    @Operation(
+            summary = "회원 탈퇴",
+            description = "STATUS를 탈퇴상태(D)로 변경"
+    )
+    @PatchMapping("/withdraw/{id}")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public ResponseEntity<ResponseDto> deleteUser(@PathVariable String id) {
+        User user = new User();
+        user.setId(id);
+        userService.deleteUser(user);
+        ResponseDto response = new ResponseDto();
+        response.setStatus(HttpStatus.OK.value());
+        response.setMessage("Delete user successfully");
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/refresh-token")
     @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<ResponseDto> refreshToken(@RequestBody Map<String, String> tokens) {
@@ -70,5 +87,20 @@ public class UserController {
             response.setMessage("Invalid or expired refresh token");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
+    }
+
+    @Operation(
+            summary = "비밀번호 찾기",
+            description = "아이디를 입력하면 DB에서 해당 아이디와 연결된 이메일로 임시 비밀번호 발송."
+    )
+    @PostMapping("/password/reset/{id}")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public ResponseEntity<ResponseDto> resetPassword(@PathVariable String id) {
+        userService.updatePassword(id);
+
+        ResponseDto response = new ResponseDto();
+        response.setStatus(HttpStatus.OK.value());
+        response.setMessage("Temporary password has been sent to your email");
+        return ResponseEntity.ok(response);
     }
 }

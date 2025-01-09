@@ -98,6 +98,27 @@ public class GlobalExceptionHandler {
         response.setMessage("User not found");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
+
+    // 메일 전송 실패
+    @ExceptionHandler(org.springframework.mail.MailSendException.class)
+    public ResponseEntity<ResponseDto> handleMailSendException(org.springframework.mail.MailSendException e) {
+        log.error("Failed to send email: ", e);
+        ResponseDto response = new ResponseDto();
+        response.setStatus(HttpStatus.BAD_REQUEST.value()); // 400
+        response.setMessage("Failed to send email: " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // 메일 전송 실패
+    @ExceptionHandler(jakarta.mail.SendFailedException.class)
+    public ResponseEntity<ResponseDto> handleSendFailedException(jakarta.mail.SendFailedException e) {
+        log.error("Email sending failed: ", e);
+        ResponseDto response = new ResponseDto();
+        response.setStatus(HttpStatus.BAD_REQUEST.value()); // 400
+        response.setMessage("Failed to send email: " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
     // 기타 모든 예외
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseDto> handleGeneralError(Exception e) {

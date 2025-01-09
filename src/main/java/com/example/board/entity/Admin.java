@@ -30,4 +30,9 @@ public class Admin {
 
     @Column(name = "reg_date", updatable = false)
     private LocalDateTime regDate;
+
+    @PrePersist
+    protected void onCreate() {
+        this.regDate = LocalDateTime.now();
+    }
 }

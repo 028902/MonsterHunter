@@ -1,5 +1,6 @@
 package com.example.board.config;
 
+import com.example.board.dto.ResponseDto;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.TransactionException;
@@ -23,68 +24,87 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({NoSuchElementException.class, EntityNotFoundException.class})
     public ResponseEntity<?> handleNotFoundException(Exception e) {
         log.error("Resource not found: ", e);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("Resource not found");
+        ResponseDto response = new ResponseDto();
+        response.setStatus(HttpStatus.NOT_FOUND.value()); // 404
+        response.setMessage("Resource not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     // 잘못된 입력값 (생성/수정 시)
     @ExceptionHandler({IllegalArgumentException.class, MethodArgumentNotValidException.class})
-    public ResponseEntity<?> handleBadRequest(Exception e) {
+    public ResponseEntity<ResponseDto> handleBadRequest(Exception e) {
         log.error("Invalid request: ", e);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Invalid request parameters");
+        ResponseDto response = new ResponseDto();
+        response.setStatus(HttpStatus.BAD_REQUEST.value()); // 400
+        response.setMessage("Invalid request parameters");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // 데이터 무결성 위반 (중복 키 등)
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<?> handleDataIntegrityViolation(DataIntegrityViolationException e) {
+    public ResponseEntity<ResponseDto> handleDataIntegrityViolation(DataIntegrityViolationException e) {
         log.error("Data integrity violation: ", e);
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body("Data integrity violation");
+        ResponseDto response = new ResponseDto();
+        response.setStatus(HttpStatus.CONFLICT.value()); // 409
+        response.setMessage("Data integrity violation");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
     // 권한 없음
     @ExceptionHandler({AccessDeniedException.class, SecurityException.class})
-    public ResponseEntity<?> handleAccessDenied(Exception e) {
+    public ResponseEntity<ResponseDto> handleAccessDenied(Exception e) {
         log.error("Access denied: ", e);
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body("Access denied");
+        ResponseDto response = new ResponseDto();
+        response.setStatus(HttpStatus.FORBIDDEN.value()); // 403 상태 코드
+        response.setMessage("Access denied");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     // 잘못된 요청 형식 (JSON 파싱 에러 등)
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<?> handleMessageNotReadable(HttpMessageNotReadableException e) {
+    public ResponseEntity<ResponseDto> handleMessageNotReadable(HttpMessageNotReadableException e) {
         log.error("Message not readable: ", e);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Invalid request format");
+        ResponseDto response = new ResponseDto();
+        response.setStatus(HttpStatus.BAD_REQUEST.value()); // 400
+        response.setMessage("Invalid request format");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // 데이터베이스 관련 예외
     @ExceptionHandler(DataAccessException.class)
-    public ResponseEntity<?> handleDataAccessException(DataAccessException e) {
+    public ResponseEntity<ResponseDto> handleDataAccessException(DataAccessException e) {
         log.error("Database error: ", e);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Database error occurred");
+        ResponseDto response = new ResponseDto();
+        response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value()); // 500
+        response.setMessage("Database error occurred");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     // 트랜잭션 관련 예외
     @ExceptionHandler(TransactionException.class)
-    public ResponseEntity<?> handleTransactionException(TransactionException e) {
+    public ResponseEntity<ResponseDto> handleTransactionException(TransactionException e) {
         log.error("Transaction error: ", e);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Transaction error occurred");
+        ResponseDto response = new ResponseDto();
+        response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value()); // 500
+        response.setMessage("Transaction error occurred");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
+
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<?> handleUsernameNotFoundException(UsernameNotFoundException e) {
+    public ResponseEntity<ResponseDto> handleUsernameNotFoundException(UsernameNotFoundException e) {
         log.error("User not found: ", e);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("User not found error");
+        ResponseDto response = new ResponseDto();
+        response.setStatus(HttpStatus.UNAUTHORIZED.value()); // 401
+        response.setMessage("User not found");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
     // 기타 모든 예외
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleGeneralError(Exception e) {
+    public ResponseEntity<ResponseDto> handleGeneralError(Exception e) {
         log.error("Unexpected error: ", e);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Internal server error");
+        ResponseDto response = new ResponseDto();
+        response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value()); // 500
+        response.setMessage("Internal server error");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 }

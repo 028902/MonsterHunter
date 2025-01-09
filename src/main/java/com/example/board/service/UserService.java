@@ -1,6 +1,7 @@
 package com.example.board.service;
 
 import com.example.board.JwtTokenProvider;
+import com.example.board.dto.UpdateInfoDto;
 import com.example.board.entity.LoginRequest;
 import com.example.board.entity.User;
 import com.example.board.repository.UserRepository;
@@ -53,6 +54,39 @@ public class UserService {
         User user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("User not found"));
         user.setStatus("D");
         userRepository.save(user);
+    }
+
+    public User getUserInfo(String userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
+    @Transactional
+    public void updateUserInfo(String userId, UpdateInfoDto updateInfoDto) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        if (updateInfoDto.getPassword() != null && !updateInfoDto.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(updateInfoDto.getPassword()));
+        }
+        if (updateInfoDto.getNickname() != null && !updateInfoDto.getNickname().isEmpty()) {
+            user.setNickname(updateInfoDto.getNickname());
+        }
+        if (updateInfoDto.getEmail() != null && !updateInfoDto.getEmail().isEmpty()) {
+            user.setEmail(updateInfoDto.getEmail());
+        }
+        if (updateInfoDto.getWeapon() != null && !updateInfoDto.getWeapon().isEmpty()) {
+            user.setWeapon(updateInfoDto.getWeapon());
+        }
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public boolean passwordCheck(String userId, String currentPassword) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new RuntimeException("Current password is incorrect");
+        }
+        return true;
     }
 
     @Transactional

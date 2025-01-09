@@ -2,6 +2,7 @@ package com.example.board.controller;
 
 import com.example.board.JwtTokenProvider;
 import com.example.board.dto.ResponseDto;
+import com.example.board.dto.UpdateInfoDto;
 import com.example.board.entity.LoginRequest;
 import com.example.board.entity.User;
 import com.example.board.service.EmailService;
@@ -47,6 +48,45 @@ public class UserController {
                 "refreshToken", tokens.get("refreshToken")
         ));
     }
+    @Operation(
+            summary = "회원정보 조회"
+    )
+    @GetMapping("/user/{id}")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public ResponseEntity<User> getUserInfo(@PathVariable String id) {
+        User user = userService.getUserInfo(id);
+        return ResponseEntity.ok(user);
+    }
+
+    @Operation(
+            summary = "회원정보 수정"
+    )
+    @PutMapping("/user/update/{id}")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public ResponseEntity<ResponseDto> updateUserInfo(@PathVariable String id, @RequestBody UpdateInfoDto updateInfoDto) {
+        userService.updateUserInfo(id, updateInfoDto);
+        ResponseDto response = new ResponseDto();
+        response.setStatus(HttpStatus.OK.value());
+        response.setMessage("Update user successfully");
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "비밀번호 체크",
+            description = "회원정보 수정 전 비밀번호 체크"
+    )
+    @PostMapping("/user/{id}/passCheck")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public ResponseEntity<ResponseDto> passwordCheck(
+            @PathVariable String id,
+            @RequestParam String currentPassword) {
+        userService.passwordCheck(id, currentPassword);
+        ResponseDto response = new ResponseDto();
+        response.setStatus(HttpStatus.OK.value());
+        response.setMessage("Password is correct.");
+        return ResponseEntity.ok(response);
+    }
+
 
     @Operation(
             summary = "회원 탈퇴",

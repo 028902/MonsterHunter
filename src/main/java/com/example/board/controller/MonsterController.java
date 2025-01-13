@@ -17,12 +17,6 @@ public class MonsterController {
     @Autowired
     private MonsterService monsterService;
 
-    @GetMapping("/")
-    @CrossOrigin(origins = "http://localhost:3000")
-    public ResponseEntity<Void> index(){
-        return ResponseEntity.ok().build();
-    }
-
     @GetMapping("/monster/list")
     @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity<ResponseDto> monsterList(

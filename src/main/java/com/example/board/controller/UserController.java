@@ -2,18 +2,20 @@ package com.example.board.controller;
 
 import com.example.board.JwtTokenProvider;
 import com.example.board.dto.ResponseDto;
+import com.example.board.dto.UpdateInfoDto;
 import com.example.board.entity.LoginRequest;
 import com.example.board.entity.User;
+import com.example.board.service.EmailService;
 import com.example.board.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Random;
 
 @RestController
 public class UserController {
@@ -46,6 +48,61 @@ public class UserController {
                 "refreshToken", tokens.get("refreshToken")
         ));
     }
+    @Operation(
+            summary = "회원정보 조회"
+    )
+    @GetMapping("/user/{id}")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public ResponseEntity<User> getUserInfo(@PathVariable String id) {
+        User user = userService.getUserInfo(id);
+        return ResponseEntity.ok(user);
+    }
+
+    @Operation(
+            summary = "회원정보 수정"
+    )
+    @PutMapping("/user/update/{id}")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public ResponseEntity<ResponseDto> updateUserInfo(@PathVariable String id, @RequestBody UpdateInfoDto updateInfoDto) {
+        userService.updateUserInfo(id, updateInfoDto);
+        ResponseDto response = new ResponseDto();
+        response.setStatus(HttpStatus.OK.value());
+        response.setMessage("Update user successfully");
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "비밀번호 체크",
+            description = "회원정보 수정 전 비밀번호 체크"
+    )
+    @PostMapping("/user/{id}/passCheck")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public ResponseEntity<ResponseDto> passwordCheck(
+            @PathVariable String id,
+            @RequestParam String currentPassword) {
+        userService.passwordCheck(id, currentPassword);
+        ResponseDto response = new ResponseDto();
+        response.setStatus(HttpStatus.OK.value());
+        response.setMessage("Password is correct.");
+        return ResponseEntity.ok(response);
+    }
+
+
+    @Operation(
+            summary = "회원 탈퇴",
+            description = "STATUS를 탈퇴상태(D)로 변경"
+    )
+    @PatchMapping("/withdraw/{id}")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public ResponseEntity<ResponseDto> deleteUser(@PathVariable String id) {
+        User user = new User();
+        user.setId(id);
+        userService.deleteUser(user);
+        ResponseDto response = new ResponseDto();
+        response.setStatus(HttpStatus.OK.value());
+        response.setMessage("Delete user successfully");
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping("/refresh-token")
     @CrossOrigin(origins = "http://localhost:3000")
@@ -70,5 +127,20 @@ public class UserController {
             response.setMessage("Invalid or expired refresh token");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
+    }
+
+    @Operation(
+            summary = "비밀번호 찾기",
+            description = "아이디를 입력하면 DB에서 해당 아이디와 연결된 이메일로 임시 비밀번호 발송."
+    )
+    @PostMapping("/password/reset/{id}")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public ResponseEntity<ResponseDto> resetPassword(@PathVariable String id) {
+        userService.updatePassword(id);
+
+        ResponseDto response = new ResponseDto();
+        response.setStatus(HttpStatus.OK.value());
+        response.setMessage("Temporary password has been sent to your email");
+        return ResponseEntity.ok(response);
     }
 }

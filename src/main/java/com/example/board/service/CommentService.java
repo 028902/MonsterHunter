@@ -19,6 +19,7 @@ public class CommentService {
     public Comment insertComment(Comment comment){
         return commentRepository.save(comment);
     }
+
     public Comment updateComment(int seq, Comment updatedComment){
         Comment comment = commentRepository.findById(seq).orElseThrow(() -> new EntityNotFoundException("Comment" + seq + " not found"));
         if(updatedComment.getId() != null) comment.setId(updatedComment.getId());

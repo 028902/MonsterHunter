@@ -23,12 +23,8 @@ public class MainController {
     }
 
     @GetMapping("/main/search")
-    public ResponseEntity<ResponseDto> search(@RequestParam String keyword) {
-        ResponseDto response = new ResponseDto();
+    public ResponseEntity<SearchAllDto> search(@RequestParam String keyword) {
         SearchAllDto searchResult = mainService.search(keyword);
-        response.setStatus(HttpStatus.OK.value());
-        response.setMessage("Main search list retrieved successfully");
-        response.setData(searchResult);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(searchResult);
     }
 }

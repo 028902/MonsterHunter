@@ -29,12 +29,12 @@ public class JwtTokenProvider {
         this.refreshTokenExpirationTime = refreshTokenExpirationTime;
     }
 
-    // 액세스 토큰 생성
-    public String generateAccessToken(String userId) {
+    // 토큰 생성 (액세스 토큰과 리프레시 토큰 공통)
+    private String generateToken(String userId, long expirationTime) {
         Claims claims = Jwts.claims().setSubject(userId);
 
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + accessTokenExpirationTime);
+        Date expiryDate = new Date(now.getTime() + expirationTime);
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -43,20 +43,14 @@ public class JwtTokenProvider {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
+    // 액세스 토큰 생성
+    public String generateAccessToken(String userId) {
+        return generateToken(userId, accessTokenExpirationTime);
+    }
 
     // 리프레시 토큰 생성
     public String generateRefreshToken(String userId) {
-        Claims claims = Jwts.claims().setSubject(userId);
-
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + refreshTokenExpirationTime);
-
-        return Jwts.builder()
-                .setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
+        return generateToken(userId, refreshTokenExpirationTime);
     }
 
     // 토큰 유효성 검사
@@ -69,24 +63,8 @@ public class JwtTokenProvider {
         }
     }
 
-    // 리프레시 토큰 유효성 검사
-    public boolean validateRefreshToken(String token) {
-        try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
-        }
-    }
-
     // 토큰에서 사용자 ID 추출
     public String getUserIdFromToken(String token) {
-        Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
-        return claims.getSubject();
-    }
-
-    // 리프레시 토큰에서 사용자 ID 추출
-    public String getUserIdFromRefreshToken(String token) {
         Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
         return claims.getSubject();
     }

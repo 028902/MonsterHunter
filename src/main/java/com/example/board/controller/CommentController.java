@@ -17,43 +17,27 @@ public class CommentController {
 
     @GetMapping("/comment/list")
     @CrossOrigin(origins = "http://localhost:3000")
-    public ResponseEntity<ResponseDto> commentList(String type, int fseq){
+    public ResponseEntity<List<Comment>> commentList(String type, int fseq){
         List<Comment> commentList = commentService.getCommentList(type, fseq);
-        ResponseDto response= new ResponseDto();
-        response.setStatus(HttpStatus.OK.value());
-        response.setMessage("Comment list retrieved successfully");
-        response.setData(commentList);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(commentList);
     }
 
     @PostMapping("/comment/insert")
     @CrossOrigin(origins = "http://localhost:3000")
-    public ResponseEntity<ResponseDto> insertComment(@RequestBody Comment comment){
+    public ResponseEntity<Comment> insertComment(@RequestBody Comment comment){
         commentService.insertComment(comment);
-        ResponseDto response = new ResponseDto();
-        response.setStatus(HttpStatus.OK.value());
-        response.setMessage("Insert Comment successfully");
-        response.setData(comment);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(comment);
     }
 
     @PutMapping("/comment/update/{seq}")
     @CrossOrigin(origins = "http://localhost:3000")
-    public ResponseEntity<ResponseDto> updateComment(@PathVariable int seq, @RequestBody Comment comment){
+    public void updateComment(@PathVariable int seq, @RequestBody Comment comment){
         commentService.updateComment(seq, comment);
-        ResponseDto response = new ResponseDto();
-        response.setStatus(HttpStatus.OK.value());  // 상태 코드 200
-        response.setMessage("Update Comment successfully");
-        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/comment/delete/{seq}")
     @CrossOrigin(origins = "http://localhost:3000")
-    public ResponseEntity<ResponseDto> deleteComment(@PathVariable int seq){
+    public void deleteComment(@PathVariable int seq){
         commentService.deleteComment(seq);
-        ResponseDto response = new ResponseDto();
-        response.setStatus(HttpStatus.OK.value());  // 상태 코드 200
-        response.setMessage("Delete Comment successfully");
-        return ResponseEntity.ok(response);
     }
 }

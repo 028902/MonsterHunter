@@ -15,9 +15,6 @@ public class Board {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // PK, AI
     private int seq;
 
-    @Column
-    private String type;
-
     @Column(nullable = false)
     private String nickname;
 
@@ -37,7 +34,6 @@ public class Board {
     @PrePersist
     protected void onCreate() {
         this.regDate = LocalDateTime.now();
-        this.type = "B";
         this.count = 0;
     }
 }

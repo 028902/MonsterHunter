@@ -43,4 +43,8 @@ public class AdminService {
         }
         throw new IllegalArgumentException("Invalid username or password");
     }
+
+    public Admin getAdminInfo(String adminId){
+        return adminRepository.findById(adminId).orElseThrow(() -> new UsernameNotFoundException("Admin not found"));
+    }
 }

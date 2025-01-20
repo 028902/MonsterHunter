@@ -1,21 +1,18 @@
 package com.example.board.controller;
 
 import com.example.board.JwtTokenProvider;
-import com.example.board.dto.ResponseDto;
+import com.example.board.dto.PassCheckDto;
+import com.example.board.dto.TokenCheckDto;
 import com.example.board.dto.UpdateInfoDto;
 import com.example.board.entity.LoginRequest;
 import com.example.board.entity.User;
-import com.example.board.service.EmailService;
 import com.example.board.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-import java.util.Random;
 
 @RestController
 public class UserController {
@@ -27,23 +24,22 @@ public class UserController {
     /*회원가입*/
     @PostMapping("/register")
     @CrossOrigin(origins = "http://localhost:3000")
-    public ResponseEntity<ResponseDto> register(@RequestBody User user) {
+    public ResponseEntity<User> register(@RequestBody User user) {
         userService.register(user);
-        ResponseDto response = new ResponseDto();
-        response.setStatus(HttpStatus.OK.value());
-        response.setMessage("Insert user successfully");
-        response.setData(user);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping("/loginRequest")
     @CrossOrigin(origins = "http://localhost:3000")
-    public ResponseEntity<?> loginRequest(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<Map<String, Object>> loginRequest(@RequestBody LoginRequest loginRequest) {
         // 로그인 요청을 서비스에 전달하고, 성공하면 액세스 토큰과 리프레시 토큰 반환
         Map<String, String> tokens = userService.loginRequest(loginRequest); // 액세스 토큰과 리프레시 토큰을 반환
-
+        String userId = jwtTokenProvider.getUserIdFromToken(tokens.get("accessToken"));
+        User user = userService.getUserInfo(userId);
         // JWT 토큰을 클라이언트에 반환
         return ResponseEntity.ok().body(Map.of(
+                "id", user.getId(),
+                "nickname", user.getNickname(),
                 "accessToken", tokens.get("accessToken"),
                 "refreshToken", tokens.get("refreshToken")
         ));
@@ -63,12 +59,8 @@ public class UserController {
     )
     @PutMapping("/user/update/{id}")
     @CrossOrigin(origins = "http://localhost:3000")
-    public ResponseEntity<ResponseDto> updateUserInfo(@PathVariable String id, @RequestBody UpdateInfoDto updateInfoDto) {
+    public void updateUserInfo(@PathVariable String id, @RequestBody UpdateInfoDto updateInfoDto) {
         userService.updateUserInfo(id, updateInfoDto);
-        ResponseDto response = new ResponseDto();
-        response.setStatus(HttpStatus.OK.value());
-        response.setMessage("Update user successfully");
-        return ResponseEntity.ok(response);
     }
 
     @Operation(
@@ -77,14 +69,10 @@ public class UserController {
     )
     @PostMapping("/user/{id}/passCheck")
     @CrossOrigin(origins = "http://localhost:3000")
-    public ResponseEntity<ResponseDto> passwordCheck(
+    public void passwordCheck(
             @PathVariable String id,
-            @RequestParam String currentPassword) {
-        userService.passwordCheck(id, currentPassword);
-        ResponseDto response = new ResponseDto();
-        response.setStatus(HttpStatus.OK.value());
-        response.setMessage("Password is correct.");
-        return ResponseEntity.ok(response);
+            @RequestBody PassCheckDto passCheckDto) {
+        userService.passwordCheck(id, passCheckDto.getPassword());
     }
 
 
@@ -94,38 +82,41 @@ public class UserController {
     )
     @PatchMapping("/withdraw/{id}")
     @CrossOrigin(origins = "http://localhost:3000")
-    public ResponseEntity<ResponseDto> deleteUser(@PathVariable String id) {
+    public void deleteUser(@PathVariable String id) {
         User user = new User();
         user.setId(id);
         userService.deleteUser(user);
-        ResponseDto response = new ResponseDto();
-        response.setStatus(HttpStatus.OK.value());
-        response.setMessage("Delete user successfully");
-        return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/refresh-token")
+    @PostMapping("/validate-token")
     @CrossOrigin(origins = "http://localhost:3000")
-    public ResponseEntity<ResponseDto> refreshToken(@RequestBody Map<String, String> tokens) {
-        String refreshToken = tokens.get("refreshToken");
+    public ResponseEntity<Map<String, Object>> validateToken(@RequestBody TokenCheckDto tokens) {
+        String accessToken = tokens.getAccessToken();
+        String refreshToken = tokens.getRefreshToken();
 
-        // 리프레시 토큰 유효성 검사
-        if (jwtTokenProvider.validateRefreshToken(refreshToken)) {
-            // 리프레시 토큰에서 사용자 ID 추출
-            String userId = jwtTokenProvider.getUserIdFromRefreshToken(refreshToken);
-            // 새로운 액세스 토큰 생성
-            String newAccessToken = jwtTokenProvider.generateAccessToken(userId);
-            ResponseDto response = new ResponseDto();
-            response.setStatus(HttpStatus.OK.value());
-            response.setMessage("Refresh token valid, new access token generated");
-            response.setData(Map.of("accessToken", newAccessToken));
-            return ResponseEntity.ok(response);
+        // 액세스 토큰 유효성 검사
+        if (jwtTokenProvider.validateToken(accessToken)) {
+            // 액세스 토큰이 유효한 경우
+            String userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+            User user = userService.getUserInfo(userId);
+
+            return ResponseEntity.ok().body(Map.of(
+                    "id", user.getId(),
+                    "nickname", user.getNickname(),
+                    "accessToken", accessToken,
+                    "refreshToken", refreshToken
+            ));
         } else {
-            // 리프레시 토큰이 유효하지 않거나 만료된 경우
-            ResponseDto response = new ResponseDto();
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.setMessage("Invalid or expired refresh token");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            //리프레시 토큰이 유효한 경우
+            String userId = jwtTokenProvider.getUserIdFromToken(refreshToken); // 새로운 액세스 토큰 생성
+            User user = userService.getUserInfo(userId);
+
+            String newAccessToken = jwtTokenProvider.generateAccessToken(userId);
+            return ResponseEntity.ok().body(Map.of(
+                    "id", user.getId(),
+                    "nickname", user.getNickname(),
+                    "accessToken", newAccessToken
+            ));
         }
     }
 
@@ -135,12 +126,28 @@ public class UserController {
     )
     @PostMapping("/password/reset/{id}")
     @CrossOrigin(origins = "http://localhost:3000")
-    public ResponseEntity<ResponseDto> resetPassword(@PathVariable String id) {
+    public void resetPassword(@PathVariable String id) {
         userService.updatePassword(id);
+    }
 
-        ResponseDto response = new ResponseDto();
-        response.setStatus(HttpStatus.OK.value());
-        response.setMessage("Temporary password has been sent to your email");
-        return ResponseEntity.ok(response);
+    @GetMapping("/check-id")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public ResponseEntity<Boolean> checkId(@RequestParam String id) {
+        boolean isDuplicated = userService.isIdDuplicated(id);
+        return ResponseEntity.ok(!isDuplicated);
+    }
+
+    @GetMapping("/check-nickname")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
+        boolean isDuplicated = userService.isNicknameDuplicated(nickname);
+        return ResponseEntity.ok(!isDuplicated);
+    }
+
+    @GetMapping("/check-email")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
+        boolean isDuplicated = userService.isEmailDuplicated(email);
+        return ResponseEntity.ok(!isDuplicated);
     }
 }

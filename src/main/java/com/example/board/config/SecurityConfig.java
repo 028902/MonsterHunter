@@ -41,6 +41,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())  // CSRF 비활성화 (JWT는 CSRF 필요 없음)
                 .authorizeHttpRequests(auth -> auth
+                        /*.requestMatchers("/board/**").authenticated()*/
                         .anyRequest().permitAll()  // 모든 요청에 대해 인증 생략
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);  // JWT 인증 필터 추가

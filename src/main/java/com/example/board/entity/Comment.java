@@ -26,6 +26,9 @@ public class Comment {
     private String id;
 
     @Column(nullable = false)
+    private String nickname;
+
+    @Column(nullable = false)
     private String body;
 
     @Column(name = "reg_date", updatable = false)
